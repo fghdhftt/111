@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPN Manager</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>🛡️ VPN Manager</h1>
+      <div class="status-bar">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Отключено</span>
+      </div>
+    </header>
+
+    <main>
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2>Страны</h2>
+          <span class="config-count" id="configCount">0</span>
+        </div>
+        <div class="search-box">
+          <input type="text" id="countrySearch" placeholder="Поиск страны...">
+        </div>
+        <div class="country-list" id="countryList">
+          <div class="loading">Загрузка...</div>
+        </div>
+        <div class="sidebar-footer">
+          <button class="btn btn-ghost" id="showSetupBtn">Как добавить конфиги?</button>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div id="serverPanel" class="server-panel hidden">
+          <div class="panel-header">
+            <h2 id="selectedCountry"></h2>
+          </div>
+          <div class="server-list" id="serverList">
+            <div class="loading">Загрузка серверов...</div>
+          </div>
+        </div>
+
+        <div id="welcomePanel" class="welcome-panel">
+          <div class="welcome-icon">🛡️</div>
+          <h2>VPN Manager</h2>
+          <p>Бесплатный менеджер VPN-подключений через WireGuard.</p>
+          <div id="welcomeActions" class="welcome-actions">
+            <button class="btn btn-primary" id="showSetupBtn2">Как бесплатно получить VPN?</button>
+          </div>
+        </div>
+
+        <div id="setupGuide" class="setup-guide hidden">
+          <button class="btn btn-ghost back-btn" id="backFromSetup">← Назад</button>
+          <h2>Бесплатный VPN через Oracle Cloud</h2>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h3>Зарегистрируйтесь в Oracle Cloud</h3>
+                <p>Создайте аккаунт на <a href="https://signup.cloud.oracle.com" target="_blank">cloud.oracle.com</a> (нужна карта, но списаний нет — всегда бесплатный тариф).</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h3>Создайте VM в нужном регионе</h3>
+                <p>Выберите регион (США, Нидерланды, Япония, Южная Корея и др.) → Create VM Instance → 
+                <strong>Canonical Ubuntu</strong> — всегда бесплатно.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h3>Откройте порт WireGuard</h3>
+                <p>В VCN → Security List добавьте Ingress Rule: <code>UDP 51820</code>, Source <code>0.0.0.0/0</code>.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <h3>Подключитесь к серверу (SSH)</h3>
+                <p>Используйте SSH-ключ, скачанный при создании VM.</p>
+                <div class="code-block">ssh -i ключ.key ubuntu@&lt;IP-сервера&gt;</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <h3>Установите WireGuard одной командой</h3>
+                <p>Скопируйте и запустите эту команду на сервере:</p>
+                <div class="code-block" id="setupCommand">curl -sL https://raw.githubusercontent.com/ ваш-скрипт/main/setup-server.sh | bash</div>
+                <p class="hint">Скрипт сам установит WireGuard, сгенерирует ключи и выведет готовый конфиг.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">6</div>
+              <div class="step-content">
+                <h3>Скопируйте конфиг в приложение</h3>
+                <p>Скопируйте полученный конфиг и вставьте его ниже, чтобы сохранить:</p>
+                <textarea id="configInput" rows="8" placeholder="Вставьте .conf файл сюда..."></textarea>
+                <button class="btn btn-primary" id="saveConfigBtn">Сохранить конфиг</button>
+                <div id="saveResult" class="save-result"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="connectionInfo" class="connection-info hidden">
+          <h2>Текущее подключение</h2>
+          <div class="info-card">
+            <div class="info-row">
+              <span class="label">Страна:</span>
+              <span id="connCountry"></span>
+            </div>
+            <div class="info-row">
+              <span class="label">Сервер:</span>
+              <span id="connServer"></span>
+            </div>
+            <div class="info-row">
+              <span class="label">Подключено:</span>
+              <span id="connTime"></span>
+            </div>
+          </div>
+          <button class="btn btn-danger" id="disconnectBtn">Отключиться</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
