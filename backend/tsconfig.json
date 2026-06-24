@@ -9,6 +9,5 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../shared" }]
+  "include": ["src/**/*"]
 }
