@@ -21,7 +21,7 @@ export const config = {
     return requireEnv('OPENAI_API_KEY');
   },
   openaiApiUrl: process.env.OPENAI_API_URL ?? 'https://api.groq.com/openai/v1/chat/completions',
-  openaiModel: process.env.OPENAI_MODEL ?? 'llama3-70b-8192',
+  openaiModel: process.env.OPENAI_MODEL ?? 'llama-3.3-70b-versatile',
   bitrixClientId: process.env.BITRIX_CLIENT_ID ?? '',
   bitrixClientSecret: process.env.BITRIX_CLIENT_SECRET ?? '',
   innField: {
