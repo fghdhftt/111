@@ -102,14 +102,14 @@ function parseAiResponse(text: string): AiAnalysis {
 export async function analyzeCounterparty(result: CounterpartyCheckResult): Promise<AiAnalysis> {
   const companyData = buildCompanySummary(result);
 
-  const response = await fetch(`${config.vibecodeApiUrl}/v1/chat/completions`, {
+  const response = await fetch(config.openaiApiUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.vibecodeApiKey}`,
+      Authorization: `Bearer ${config.openaiApiKey}`,
     },
     body: JSON.stringify({
-      model: config.vibecodeAiModel,
+      model: config.openaiModel,
       messages: [
         {
           role: 'system',
@@ -133,14 +133,14 @@ ${companyData}`,
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`VibeCode AI error: HTTP ${response.status} — ${body}`);
+    throw new Error(`OpenAI AI error: HTTP ${response.status} — ${body}`);
   }
 
   const json = (await response.json()) as ChatCompletionResponse;
   const content = json.choices?.[0]?.message?.content;
 
   if (!content) {
-    throw new Error(json.error?.message ?? 'VibeCode AI returned empty response');
+    throw new Error(json.error?.message ?? 'OpenAI returned empty response');
   }
 
   return parseAiResponse(content);

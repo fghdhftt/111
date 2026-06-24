@@ -4,7 +4,7 @@ import type {
   CrmEntityType,
 } from '@counterparty-check/shared';
 import { fetchCounterpartyByInn } from './checko';
-import { analyzeCounterparty } from './vibecode-ai';
+import { analyzeCounterparty } from './openai-ai';
 import {
   addTimelineEntry,
   getEntityInn,

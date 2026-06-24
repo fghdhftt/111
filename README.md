@@ -1,12 +1,12 @@
 # Проверка контрагента для Bitrix24 CRM
 
-Приложение для Bitrix24 CRM: проверка контрагентов по ИНН через [Checko API](https://checko.ru/integration/api), AI-анализ рисков через [VibeCode AI Router](https://vibecode.bitrix24.tech) и отображение результатов во вкладке карточки **сделки** и **лида**.
+Приложение для Bitrix24 CRM: проверка контрагентов по ИНН через [Checko API](https://checko.ru/integration/api), AI-анализ рисков через OpenAI и отображение результатов во вкладке карточки **сделки** и **лида**.
 
 ## Возможности
 
 - Вкладка **«Проверка контрагента»** в карточках CRM (сделка, лид)
 - Получение данных из Checko: реквизиты, финансы, судебные дела, исполнительные производства
-- AI-анализ через модель `bitrix/google/gemma-4-26B-A4B-it`
+- AI-анализ через OpenAI (gpt-4o-mini)
 - Кнопка **«Проверить контрагента»** для ручного запуска проверки
 - Сохранение результата в пользовательское поле CRM
 - Запись в таймлайн сделки/лида
@@ -30,7 +30,7 @@
 - Node.js 20+
 - Docker и Docker Compose (для деплоя)
 - Аккаунт [Checko](https://checko.ru) с API-ключом
-- Аккаунт [Bitrix24 VibeCode](https://vibecode.bitrix24.tech)
+- Аккаунт OpenAI с API-ключом
 - Портал Bitrix24 с правами на установку REST-приложений
 
 ## Переменные окружения
@@ -40,7 +40,8 @@
 | Переменная | Описание |
 |---|---|
 | `CHECKO_API_KEY` | API-ключ Checko |
-| `VIBECODE_API_KEY` | API-ключ VibeCode (`vibe_api_…`) для AI Router |
+| `OPENAI_API_KEY` | API-ключ OpenAI (`sk-…`) |
+| `OPENAI_MODEL` | Модель OpenAI (по умолчанию `gpt-4o-mini`) |
 | `APP_URL` | Публичный URL приложения после деплоя |
 | `BITRIX_CLIENT_ID` | Client ID OAuth-приложения Bitrix24 |
 | `BITRIX_CLIENT_SECRET` | Client Secret OAuth-приложения |
@@ -51,8 +52,6 @@
 | `CACHE_TTL_HOURS` | Время жизни кэша (по умолчанию 24) |
 
 > **Безопасность:** не храните ключи в коде. Используйте только `.env` или секреты платформы деплоя. Если ключи были опубликованы — перевыпустите их.
-
-> **VibeCode:** для встраивания вкладки в интерфейс Bitrix24 нужен ключ авторизации `vibe_app_…` (раздел «Ключи авторизации»). Ключ `vibe_api_…` используется для AI Router и серверных вызовов API.
 
 ## Локальная разработка
 
@@ -88,22 +87,15 @@ docker compose up -d --build
 
 Проверка: `GET /api/health`
 
-## Деплой в VibeCode
+## Деплой на Railway
 
-1. Войдите в [кабинет VibeCode](https://vibecode.bitrix24.tech).
-2. Создайте сервер и получите URL вида `https://app-xxx.vibecode.bitrix24.tech`.
-3. Укажите этот URL в `APP_URL` в `.env`.
-4. Загрузите проект и выполните деплой:
-
-```bash
-# Пример (уточните ID сервера в кабинете VibeCode)
-curl -X POST "https://vibecode.bitrix24.tech/v1/infra/servers/{SERVER_ID}/deploy" \
-  -H "Authorization: Bearer YOUR_VIBECODE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"source":"git","repository":"YOUR_REPO_URL"}'
-```
-
-Документация платформы: `https://vibecode.bitrix24.tech/v1/me`
+1. Загрузите код в GitHub-репозиторий.
+2. В [Railway](https://railway.app) создайте новый проект и подключите репозиторий.
+3. Railway автоматически обнаружит `Dockerfile` и соберёт контейнер.
+4. В настройках проекта добавьте переменные окружения из `.env.example`.
+5. Railway выдаст URL вида `https://your-app.up.railway.app`.
+6. Укажите этот URL в `APP_URL` в переменных окружения Railway.
+7. Обновите URL обработчика в локальном приложении Bitrix24 на новый `APP_URL`.
 
 ## Установка в Bitrix24
 
@@ -140,7 +132,7 @@ curl -X POST "https://vibecode.bitrix24.tech/v1/infra/servers/{SERVER_ID}/deploy
 
 1. Прочитает ИНН из поля CRM
 2. Запросит данные в Checko (компания, финансы, суды, ФССП)
-3. Выполнит AI-анализ через VibeCode
+3. Выполнит AI-анализ через OpenAI
 4. Обновит вкладку
 5. Сохранит результат в пользовательское поле
 6. Добавит запись в таймлайн
@@ -178,7 +170,7 @@ flowchart LR
   CRM[Bitrix24 CRM] --> Tab[Вкладка React]
   Tab --> API[Backend API]
   API --> Checko[Checko API]
-  API --> AI[VibeCode AI Router]
+  API --> AI[OpenAI API]
   API --> Cache[Кэш 24ч]
   API --> CRMFields[Поля CRM + Таймлайн]
 ```

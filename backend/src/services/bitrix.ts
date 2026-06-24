@@ -46,7 +46,26 @@ export async function getEntityInn(
   const innField = getInnField(entityType);
 
   const entity = await bitrixCall<Record<string, unknown>>(auth, method, { id: entityId });
-  const inn = entity[innField] ?? entity.INN ?? entity.inn;
+
+  // Debug: log all UF_CRM keys found in the entity
+  const ufKeys = Object.keys(entity).filter(k => k.startsWith('UF_CRM') || k.startsWith('INN') || k === 'inn');
+  const ufMap = ufKeys.map(k => `${k}=${entity[k]}`).join('; ');
+  console.log(`[getEntityInn] entity id=${entityId} type=${entityType} innField=${innField} ufFields=[${ufMap}]`);
+
+  let inn = entity[innField] ?? entity.INN ?? entity.inn;
+
+  // Fallback: search any UF_CRM field that looks like an INN (10-12 digits)
+  if (!inn) {
+    for (const key of ufKeys) {
+      const val = String(entity[key] ?? '');
+      const digits = val.replace(/\D/g, '');
+      if (digits.length === 10 || digits.length === 12) {
+        inn = digits;
+        console.log(`[getEntityInn] found INN in fallback field ${key}=${val} digits=${digits}`);
+        break;
+      }
+    }
+  }
 
   if (!inn || String(inn).trim() === '') {
     return null;
@@ -102,6 +121,12 @@ export async function bindPlacements(auth: BitrixAuthPayload, handlerUrl: string
   ];
 
   for (const placement of placements) {
+    // Unbind first to avoid "Handler already binded"
+    await bitrixCall(auth, 'placement.unbind', {
+      PLACEMENT: placement.PLACEMENT,
+      HANDLER: handlerUrl,
+    }).catch(() => undefined);
+
     await bitrixCall(auth, 'placement.bind', {
       ...placement,
       HANDLER: handlerUrl,

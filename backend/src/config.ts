@@ -17,11 +17,11 @@ export const config = {
   get checkoApiKey(): string {
     return requireEnv('CHECKO_API_KEY');
   },
-  get vibecodeApiKey(): string {
-    return requireEnv('VIBECODE_API_KEY');
+  get openaiApiKey(): string {
+    return requireEnv('OPENAI_API_KEY');
   },
-  vibecodeApiUrl: process.env.VIBECODE_API_URL ?? 'https://vibecode.bitrix24.tech',
-  vibecodeAiModel: process.env.VIBECODE_AI_MODEL ?? 'bitrix/google/gemma-4-26B-A4B-it',
+  openaiApiUrl: process.env.OPENAI_API_URL ?? 'https://api.groq.com/openai/v1/chat/completions',
+  openaiModel: process.env.OPENAI_MODEL ?? 'llama3-70b-8192',
   bitrixClientId: process.env.BITRIX_CLIENT_ID ?? '',
   bitrixClientSecret: process.env.BITRIX_CLIENT_SECRET ?? '',
   innField: {
