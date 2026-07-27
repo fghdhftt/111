@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: counterparty-check
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -w backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_URL
+        value: https://counterparty-check.onrender.com
+      - key: CHECKO_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_API_URL
+        value: https://api.groq.com/openai/v1/chat/completions
+      - key: OPENAI_MODEL
+        value: llama-3.3-70b-versatile
+      - key: BITRIX_CLIENT_ID
+        sync: false
+      - key: BITRIX_CLIENT_SECRET
+        sync: false
+      - key: BITRIX_INN_FIELD_DEAL
+        value: UF_CRM_INN
+      - key: BITRIX_INN_FIELD_LEAD
+        value: UF_CRM_INN
+      - key: BITRIX_RESULT_FIELD_DEAL
+        value: UF_CRM_CHECKO_RESULT
+      - key: BITRIX_RESULT_FIELD_LEAD
+        value: UF_CRM_CHECKO_RESULT
+      - key: CACHE_TTL_HOURS
+        value: "24"
